@@ -29,18 +29,28 @@ io.on("connection", (client) => {
     // Actualiza las personas que estan conectadas en una sala
     client.broadcast.to(data.room).emit("listPeople", users.getPeopleByRoom(data.room));
 
+    //Notifica que un usuario entro el chat
+    client.broadcast.to(data.room).emit("createMsg",createMsg( "Administrador", `${data.name} se unió.` ));
+
+
+
     return callback({
       ok: true,
       data: users.getPeopleByRoom(data.room),
     });
   });
 
-  client.on("createMsg", (data) => {
+  client.on("createMsg", (data,callback) => {
     let person = users.getPerson(client.id);
 
     let message = createMsg(person.name, data.msg);
 
     client.broadcast.to(person.room).emit("createMsg", message);
+
+      return callback({
+        ok: true,
+        message
+      });
   });
 
   client.on("disconnect", () => { 
